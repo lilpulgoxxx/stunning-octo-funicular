@@ -6,7 +6,7 @@ transformers==4.40.2
 google-cloud-storage==2.15.0
 google-auth==2.29.0
 diffusers==0.28.0
-audiocraft==0.0.4
+audiocraft==0.0.2
 huggingface-hub==0.22.2
 Pillow==10.3.0
 accelerate==0.29.3
