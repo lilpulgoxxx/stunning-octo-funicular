@@ -88,8 +88,7 @@ Request Body:
     "stop_sequences": []
     "image_path": null # Optional, used only for image-to-video
 }
-content_copy
-Use code with caution.
+
 Json
 
 model_name: The Hugging Face model name (e.g., gpt2, meta-llama/Llama-3-8B-Instruct, stabilityai/stable-diffusion-2-1, facebook/audiogen-medium, THUDM/CogVideoX1.5-5B-I2V, black-forest-labs/FLUX.1-dev)
@@ -105,15 +104,13 @@ image_path: The GCS path to the image to be used in image-to-video (only used wh
 Example Text-to-Text Request:
 
 curl -X POST -H "Content-Type: application/json" -d '{"model_name": "gpt2", "input_text": "Write a short story about a cat", "task_type": "text-to-text"}' http://localhost:7860/generate
-content_copy
-Use code with caution.
+
 Bash
 
 Example Llama-3 Text Generation Request:
 
 curl -X POST -H "Content-Type: application/json" -d '{"model_name": "meta-llama/Llama-3-8B-Instruct", "input_text": "What is the meaning of life?", "task_type": "text-generation-llama3", "max_new_tokens": 500}' http://localhost:7860/generate
-content_copy
-Use code with caution.
+
 Bash
 
 Response: (Streaming for text-to-text, JSON for others)
@@ -130,8 +127,7 @@ Request Body: Same as /generate with "task_type": "text-to-image".
 Example Request:
 
 curl -X POST -H "Content-Type: application/json" -d '{"model_name": "stabilityai/stable-diffusion-2-1", "input_text": "A cat in space", "task_type": "text-to-image"}' http://localhost:7860/generate-image
-content_copy
-Use code with caution.
+
 Bash
 
 Response: Image in PNG format.
@@ -160,8 +156,7 @@ Request Body: Same as /generate with "task_type": "text-to-speech".
 Example Request:
 
 curl -X POST -H "Content-Type: application/json" -d '{"model_name": "facebook/audiogen-medium", "input_text": "This is a test audio.", "task_type": "text-to-speech"}' http://localhost:7860/generate-text-to-speech
-content_copy
-Use code with caution.
+
 Bash
 
 Response: Audio in WAV format.
@@ -175,8 +170,7 @@ Request Body: Same as /generate with "task_type": "text-to-video".
 Example Request:
 
 curl -X POST -H "Content-Type: application/json" -d '{"model_name": "model-with-text-to-video-pipeline", "input_text": "A car driving fast.", "task_type": "text-to-video"}' http://localhost:7860/generate-video
-content_copy
-Use code with caution.
+
 Bash
 
 Response: Video in MP4 format.
@@ -193,8 +187,6 @@ Request Body:
     "task_type": "image-to-video",
     "image_path": "path/to/your/image.jpg"
 }
-content_copy
-Use code with caution.
 Json
 
 Important: Please remember to replace path/to/your/image.jpg with the actual path to your image in GCS.
@@ -202,8 +194,7 @@ Important: Please remember to replace path/to/your/image.jpg with the actual pat
 Example Request:
 
 curl -X POST -H "Content-Type: application/json" -d '{"model_name": "THUDM/CogVideoX1.5-5B-I2V", "input_text": "A little girl is riding a bicycle at high speed.", "task_type": "image-to-video", "image_path": "path/to/your/image.jpg"}' http://localhost:7860/generate-image-to-video
-content_copy
-Use code with caution.
+
 Bash
 
 Response: Video in MP4 format.
@@ -234,5 +225,3 @@ License
 2.  **View:** When you open this file in a Markdown viewer (like GitHub, GitLab, or VS Code), it will be rendered as a formatted document.
 
 This `README.md` file should give anyone who visits your project a good overview of what it does, how to set it up, and how to use it. Make sure to replace the placeholders (e.g., `<your-repository-url>`) with your actual information.
-content_copy
-Use code with caution.
