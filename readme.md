@@ -56,7 +56,7 @@ This project implements a FastAPI-based API for serving various AI models, inclu
 
 ## Running the Application
 
-
+```bash
 python your_script_name.py
 content_copy
 Use code with caution.
