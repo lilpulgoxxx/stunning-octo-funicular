@@ -20,7 +20,7 @@ import json
 import logging
 from diffusers import DiffusionPipeline, CogVideoXImageToVideoPipeline, FluxPipeline
 from audiocraft.models import AudioGen
-from audiocraft.utils import convert_audio
+#from audiocraft.utils import convert_audio
 from huggingface_hub import hf_hub_download, HfApi
 from PIL import Image
 
