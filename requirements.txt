@@ -7,6 +7,6 @@ google-cloud-storage==2.15.0
 google-auth==2.29.0
 diffusers>=0.31.0
 audiocraft==0.0.2
-huggingface-hub==0.22.2
+huggingface-hub
 Pillow==10.3.0
 accelerate==0.29.3
