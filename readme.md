@@ -1,4 +1,3 @@
-```markdown
 # ✨ AI Model API Service ✨
 
 A powerful FastAPI-based API for serving diverse AI models including text generation, image generation, text-to-speech, text-to-video, and image-to-video. Leverages Google Cloud Storage (GCS) for storage and Hugging Face Hub for downloads.
