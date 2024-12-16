@@ -2,7 +2,7 @@ import os
 import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from transformers import (
     AutoConfig,
     AutoModelForCausalLM,
