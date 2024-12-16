@@ -1,1 +1,206 @@
-"# ✨ AI Model API Service ✨\n\n A powerful FastAPI-based API for serving diverse AI models including text generation, image generation, text-to-speech, text-to-video, and image-to-video. Leverages Google Cloud Storage (GCS) for storage and Hugging Face Hub for downloads.\n\n---\n\n## 🚀 Features\n\n-   **Unified API:** A single `/generate` endpoint for all generation tasks.\n-   **GCS Prioritization:** Loads models from GCS for speed and cost, falling back to Hugging Face.\n-   **Automatic Upload to GCS:** If a model is downloaded from Hugging Face, it's automatically uploaded to GCS.\n-   **Text Generation:** Uses Hugging Face Transformers for diverse text generation models (including streaming responses).\n-   **Image Generation:** Supports Stable Diffusion and Flux for text-to-image.\n-   **Text-to-Speech:** Utilizes AudioGen for text-to-speech.\n-   **Text-to-Video:** Provides basic text-to-video functionality.\n-   **Image-to-Video:** Supports image-to-video generation using CogVideo.\n-   **Streaming Responses:** Supports `StreamingResponse` for text generation.\n-   **Environment Variable Configuration:** Uses environment variables for sensitive information.\n\n---\n\n## ⚙️ Prerequisites\n\nBefore you begin, make sure you have the following:\n\n*   **Python 3.9+**\n*   A Google Cloud Project with a GCS bucket (`GCS_BUCKET_NAME`)\n*   A Google Cloud Service Account Key (`GOOGLE_APPLICATION_CREDENTIALS_JSON`)\n*   A Hugging Face Account API Token (`HF_API_TOKEN`)\n\n---\n\n## ⬇️ Installation\n\n1.  **Clone the Repository:**\n    ```bash\n    git clone <your-repository-url>\n    cd <your-repository-directory>\n    ```\n\n2.  **Create a Virtual Environment (Optional):**\n    ```bash\n    python -m venv venv\n    source venv/bin/activate  # On Linux/macOS\n    venv\\Scripts\\activate   # On Windows\n    ```\n\n3.  **Install Dependencies:**\n    ```bash\n    pip install -r requirements.txt\n    ```\n\n4.  **Set Environment Variables:** You must set the `GCS_BUCKET_NAME`, `GOOGLE_APPLICATION_CREDENTIALS_JSON` (as a single JSON string), and `HF_API_TOKEN` environment variables. For example:\n    ```bash\n    export GCS_BUCKET_NAME=\"your-gcs-bucket-name\"\n    export GOOGLE_APPLICATION_CREDENTIALS_JSON='{\"type\": \"service_account\", ...}'\n    export HF_API_TOKEN=\"your-hugging-face-api-token\"\n    ```\n    ⚠️ **Important:** Please ensure `GOOGLE_APPLICATION_CREDENTIALS_JSON` is a valid JSON string.\n\n---\n\n## 🚀 Usage\n\n### 💻 Running the Application\n\n```bash\npython your_script_name.py\n```\n\nThe API will be available at `http://0.0.0.0:7860`.\n\n### ⚙️ /generate Endpoint\n\nHandles all generation tasks.\n\n**Request Body:**\n\n```json\n{\n    \"model_name\": \"gpt2\",\n    \"input_text\": \"Hello, world!\",\n    \"task_type\": \"text-to-text\",\n    \"temperature\": 1.0,\n    \"max_new_tokens\": 200,\n    \"top_p\": 1.0,\n    \"top_k\": 50,\n    \"repetition_penalty\": 1.0,\n    \"num_return_sequences\": 1,\n    \"do_sample\": true,\n    \"chunk_delay\": 0.0,\n    \"stop_sequences\": [],\n    \"image_path\": null\n}\n```\n\n**Parameters:**\n\n-   `model_name`: (string) The Hugging Face model name (e.g., `gpt2`).\n-   `input_text`: (string) Input text for generation.\n-   `task_type`: (string) Type of task (`text-to-text`, `text-to-image`, `text-to-speech`, `text-to-video`, `image-to-video`, `text-to-image-flux`, `text-generation-llama3`).\n-   `temperature`, `max_new_tokens`, etc.: (numbers, booleans) Generation configuration parameters (text-to-text related).\n-   `image_path`:(string, optional) GCS path to an image, only used when `task_type` is `image-to-video`.\n\n**Examples:**\n\n*   **Text-to-Text:**\n    ```bash\n    curl -X POST -H \"Content-Type: application/json\" -d '{\"model_name\": \"gpt2\", \"input_text\": \"Write a short story about a cat\", \"task_type\": \"text-to-text\"}' http://localhost:7860/generate\n    ```\n*   **Llama-3 Text Generation:**\n    ```bash\n    curl -X POST -H \"Content-Type: application/json\" -d '{\"model_name\": \"meta-llama/Llama-3-8B-Instruct\", \"input_text\": \"What is the meaning of life?\", \"task_type\": \"text-generation-llama3\", \"max_new_tokens\": 500}' http://localhost:7860/generate\n    ```\n\n*   **Response (Text-to-Text/Llama-3):**\n    ```json\n    { \"text\": \"Your text output...\" }\n    ```\n\n### 🖼️ /generate-image Endpoint\n\nHandles text-to-image generation (Stable Diffusion).\n\n**Request Body:** Same as `/generate` with `\"task_type\": \"text-to-image\"`.\n\n**Example:**\n```bash\ncurl -X POST -H \"Content-Type: application/json\" -d '{\"model_name\": \"stabilityai/stable-diffusion-2-1\", \"input_text\": \"A cat in space\", \"task_type\": \"text-to-image\"}' http://localhost:7860/generate\n```\n\n**Response:** Image in PNG format.\n\n### 🖼️ /generate-image-flux Endpoint\n\nHandles text-to-image generation using Flux.\n\n**Request Body:** Same as `/generate` with `\"task_type\": \"text-to-image-flux\"`.\n\n**Example:**\n```bash\ncurl -X POST -H \"Content-Type: application/json\" -d '{\"model_name\": \"black-forest-labs/FLUX.1-dev\", \"input_text\": \"A cat in space\", \"task_type\": \"text-to-image-flux\"}' http://localhost:7860/generate\n```\n\n**Response:** Image in PNG format.\n\n### 🗣️ /generate-text-to-speech Endpoint\n\nHandles text-to-speech synthesis using AudioGen.\n\n**Request Body:** Same as `/generate` with `\"task_type\": \"text-to-speech\"`.\n\n**Example:**\n```bash\ncurl -X POST -H \"Content-Type: application/json\" -d '{\"model_name\": \"facebook/audiogen-medium\", \"input_text\": \"This is a test audio.\", \"task_type\": \"text-to-speech\"}' http://localhost:7860/generate\n```\n\n**Response:** Audio in WAV format.\n\n### 🎬 /generate-video Endpoint\n\nHandles basic text-to-video using a model loaded with pipeline tag \"text-to-video\".\n\n**Request Body:** Same as `/generate` with `\"task_type\": \"text-to-video\"`.\n\n**Example:**\n```bash\ncurl -X POST -H \"Content-Type: application/json\" -d '{\"model_name\": \"model-with-text-to-video-pipeline\", \"input_text\": \"A car driving fast.\", \"task_type\": \"text-to-video\"}' http://localhost:7860/generate\n```\n\n**Response:** Video in MP4 format.\n\n### 🎥 /generate-image-to-video Endpoint\n\nHandles image-to-video generation using CogVideo.\n\n**Request Body:**\n\n```json\n{\n    \"model_name\": \"THUDM/CogVideoX1.5-5B-I2V\",\n    \"input_text\": \"A little girl is riding a bicycle at high speed.\",\n    \"task_type\": \"image-to-video\",\n    \"image_path\": \"path/to/your/image.jpg\"\n}\n```\n\n**Important:** Please remember to replace `path/to/your/image.jpg` with the actual path to your image in GCS.\n\n**Example:**\n```bash\ncurl -X POST -H \"Content-Type: application/json\" -d '{\"model_name\": \"THUDM/CogVideoX1.5-5B-I2V\", \"input_text\": \"A little girl is riding a bicycle at high speed.\", \"task_type\": \"image-to-video\", \"image_path\": \"path/to/your/image.jpg\"}' http://localhost:7860/generate\n```\n\n**Response:** Video in MP4 format.\n\n---\n\n## 🤝 Contributing\n\nContributions are welcome! Please open an issue or submit a pull request.\n\n---\n\n## 📜 License\n\n[Insert License Here]\n"
+```markdown
+# ✨ AI Model API Service ✨
+
+A powerful FastAPI-based API for serving diverse AI models including text generation, image generation, text-to-speech, text-to-video, and image-to-video. Leverages Google Cloud Storage (GCS) for storage and Hugging Face Hub for downloads.
+
+---
+
+## 🚀 Features
+
+-   **Unified API:** A single `/generate` endpoint for all generation tasks.
+-   **GCS Prioritization:** Loads models from GCS for speed and cost, falling back to Hugging Face.
+-   **Automatic Upload to GCS:** If a model is downloaded from Hugging Face, it's automatically uploaded to GCS.
+-   **Text Generation:** Uses Hugging Face Transformers for diverse text generation models (including streaming responses).
+-   **Image Generation:** Supports Stable Diffusion and Flux for text-to-image.
+-   **Text-to-Speech:** Utilizes AudioGen for text-to-speech.
+-   **Text-to-Video:** Provides basic text-to-video functionality.
+-   **Image-to-Video:** Supports image-to-video generation using CogVideo.
+-   **Streaming Responses:** Supports `StreamingResponse` for text generation.
+-   **Environment Variable Configuration:** Uses environment variables for sensitive information.
+
+---
+
+## ⚙️ Prerequisites
+
+Before you begin, make sure you have the following:
+
+*   **Python 3.9+**
+*   A Google Cloud Project with a GCS bucket (`GCS_BUCKET_NAME`)
+*   A Google Cloud Service Account Key (`GOOGLE_APPLICATION_CREDENTIALS_JSON`)
+*   A Hugging Face Account API Token (`HF_API_TOKEN`)
+
+---
+
+## ⬇️ Installation
+
+1.  **Clone the Repository:**
+    ```bash
+    git clone <your-repository-url>
+    cd <your-repository-directory>
+    ```
+2.  **Create a Virtual Environment (Optional):**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Linux/macOS
+    venv\Scripts\activate   # On Windows
+    ```
+3.  **Install Dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+4.  **Set Environment Variables:** You must set the `GCS_BUCKET_NAME`, `GOOGLE_APPLICATION_CREDENTIALS_JSON` (as a single JSON string), and `HF_API_TOKEN` environment variables. For example:
+    ```bash
+    export GCS_BUCKET_NAME="your-gcs-bucket-name"
+    export GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type": "service_account", ...}'
+    export HF_API_TOKEN="your-hugging-face-api-token"
+    ```
+    ⚠️ **Important:** Please ensure `GOOGLE_APPLICATION_CREDENTIALS_JSON` is a valid JSON string.
+
+---
+
+## 🚀 Usage
+
+### 💻 Running the Application
+
+```bash
+python your_script_name.py
+```
+
+The API will be available at `http://0.0.0.0:7860`.
+
+### ⚙️ /generate Endpoint
+
+Handles all generation tasks.
+
+**Request Body:**
+
+```json
+{
+    "model_name": "gpt2",
+    "input_text": "Hello, world!",
+    "task_type": "text-to-text",
+    "temperature": 1.0,
+    "max_new_tokens": 200,
+    "top_p": 1.0,
+    "top_k": 50,
+    "repetition_penalty": 1.0,
+    "num_return_sequences": 1,
+    "do_sample": true,
+    "chunk_delay": 0.0,
+    "stop_sequences": [],
+    "image_path": null
+}
+```
+
+**Parameters:**
+
+-   `model_name`: (string) The Hugging Face model name (e.g., `gpt2`).
+-   `input_text`: (string) Input text for generation.
+-   `task_type`: (string) Type of task (`text-to-text`, `text-to-image`, `text-to-speech`, `text-to-video`, `image-to-video`, `text-to-image-flux`, `text-generation-llama3`).
+-   `temperature`, `max_new_tokens`, etc.: (numbers, booleans) Generation configuration parameters (text-to-text related).
+-   `image_path`:(string, optional) GCS path to an image, only used when `task_type` is `image-to-video`.
+
+**Examples:**
+
+*   **Text-to-Text:**
+    ```bash
+    curl -X POST -H "Content-Type: application/json" -d '{"model_name": "gpt2", "input_text": "Write a short story about a cat", "task_type": "text-to-text"}' http://localhost:7860/generate
+    ```
+*   **Llama-3 Text Generation:**
+    ```bash
+    curl -X POST -H "Content-Type: application/json" -d '{"model_name": "meta-llama/Llama-3-8B-Instruct", "input_text": "What is the meaning of life?", "task_type": "text-generation-llama3", "max_new_tokens": 500}' http://localhost:7860/generate
+    ```
+
+*   **Response (Text-to-Text/Llama-3):**
+    ```json
+    { "text": "Your text output..." }
+    ```
+
+### 🖼️ /generate-image Endpoint
+
+Handles text-to-image generation (Stable Diffusion).
+
+**Request Body:** Same as `/generate` with `"task_type": "text-to-image"`.
+
+**Example:**
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"model_name": "stabilityai/stable-diffusion-2-1", "input_text": "A cat in space", "task_type": "text-to-image"}' http://localhost:7860/generate
+```
+
+**Response:** Image in PNG format.
+
+### 🖼️ /generate-image-flux Endpoint
+
+Handles text-to-image generation using Flux.
+
+**Request Body:** Same as `/generate` with `"task_type": "text-to-image-flux"`.
+
+**Example:**
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"model_name": "black-forest-labs/FLUX.1-dev", "input_text": "A cat in space", "task_type": "text-to-image-flux"}' http://localhost:7860/generate
+```
+
+**Response:** Image in PNG format.
+
+### 🗣️ /generate-text-to-speech Endpoint
+
+Handles text-to-speech synthesis using AudioGen.
+
+**Request Body:** Same as `/generate` with `"task_type": "text-to-speech"`.
+
+**Example:**
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"model_name": "facebook/audiogen-medium", "input_text": "This is a test audio.", "task_type": "text-to-speech"}' http://localhost:7860/generate
+```
+
+**Response:** Audio in WAV format.
+
+### 🎬 /generate-video Endpoint
+
+Handles basic text-to-video using a model loaded with pipeline tag "text-to-video".
+
+**Request Body:** Same as `/generate` with `"task_type": "text-to-video"`.
+
+**Example:**
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"model_name": "model-with-text-to-video-pipeline", "input_text": "A car driving fast.", "task_type": "text-to-video"}' http://localhost:7860/generate
+```
+
+**Response:** Video in MP4 format.
+
+### 🎥 /generate-image-to-video Endpoint
+
+Handles image-to-video generation using CogVideo.
+
+**Request Body:**
+
+```json
+{
+    "model_name": "THUDM/CogVideoX1.5-5B-I2V",
+    "input_text": "A little girl is riding a bicycle at high speed.",
+    "task_type": "image-to-video",
+    "image_path": "path/to/your/image.jpg"
+}
+```
+
+**Important:** Please remember to replace `path/to/your/image.jpg` with the actual path to your image in GCS.
+
+**Example:**
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"model_name": "THUDM/CogVideoX1.5-5B-I2V", "input_text": "A little girl is riding a bicycle at high speed.", "task_type": "image-to-video", "image_path": "path/to/your/image.jpg"}' http://localhost:7860/generate
+```
+
+**Response:** Video in MP4 format.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+---
+
+## 📜 License
+
+[Insert License Here]
+```
