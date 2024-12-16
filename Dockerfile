@@ -8,7 +8,6 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 # Instala las dependencias.  Reemplaza `pip install -r requirements.txt` con tus requisitos.
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install "numpy<2"
 
 # Copia tu aplicación
 COPY app.py ./
